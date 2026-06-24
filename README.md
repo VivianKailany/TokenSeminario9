@@ -4,6 +4,65 @@
 
 Implementação em Elixir do algoritmo de **anel de bastão (token ring)** para exclusão mútua distribuída, apresentado na seção **9.6.1  "Distributed Mutual Exclusion"** de Misra & Andrews, *Foundations of Multithreaded, Parallel, and Distributed Programming* (Figuras 9.14 e 9.15 do livro).
 
+## Introdução
+
+Um **token** é uma mensagem especial que circula entre processos. Ele serve para duas coisas bem diferentes:
+
+1. **Conceder permissão** — só quem tem o token pode fazer algo (ex.: entrar numa seção crítica).
+2. **Coletar informação global** — o token "viaja" recolhendo informação sobre o estado de todos os processos (ex.: descobrir se a computação inteira já terminou).
+
+A seção 9.6 mostra **um exemplo de cada uso**:
+
+| Subseção | Problema | Papel do token |
+|---|---|---|
+| 9.6.1 | Exclusão mútua distribuída | Permissão para entrar na seção crítica |
+| 9.6.2 | Detecção de término (anel) | Coleta de estado global (quem está ocioso) |
+| 9.6.3 | Detecção de término (grafo completo) | Mesma coisa, topologia mais difícil |
+
+## Resumo 9.6.2 — Detecção de Término em um Anel
+
+**Problema:** numa computação sequencial, detectar término é trivial (o processo parou). Numa computação **distribuída**, é difícil: mesmo que todo processador pareça ocioso num instante, pode haver mensagens **em trânsito** que vão reativar alguém.
+
+**Definição de término (DTERM):**
+
+> Todo processo está ocioso **e** não há mensagens em trânsito.
+
+**Premissa desta subseção:** a comunicação entre os processos forma um **anel** — `T[1] → T[2] → ... → T[n] → T[1]`.
+
+**A ideia:** um token especial (que não faz parte da computação) circula pelo mesmo anel de canais usados pelas mensagens normais. Como as mensagens são entregues em ordem (FIFO), o token "empurra" e "limpa" qualquer mensagem normal que esteja na frente dele.
+
+**Esquema de cores:**
+- **vermelho (red)** = "quente" (já esteve ativo desde a última vez que viu o token)
+- **azul (blue)** = "frio" (ocioso continuamente desde que viu o token)
+
+**Regra de decisão:** `T[1]` inicia o protocolo ficando azul e mandando o token. Se o token voltar para `T[1]` e ele **continuar azul**, então todo mundo ficou ocioso o tempo todo — término confirmado.
+
+**Invariante global (RING):**
+
+> Token está em `T[1]` ⇒ `T[1]...T[token+1]` são azuis **e** os canais entre eles estão vazios.
+
+---
+
+## Resumo 9.6.3 — Detecção de Término em um Grafo Completo
+
+**Problema:** generalizar 9.6.2 para quando **qualquer** processo pode mandar mensagem para **qualquer** outro (grafo completo de comunicação), não só para o vizinho do anel.
+
+**Por que é mais difícil:** mensagens podem "ultrapassar" o token por um caminho diferente. Exemplo do livro com 3 processos: o token vai `T[1]→T[2]→T[3]→T[1]`, mas `T[3]` pode mandar uma mensagem comum direto para `T[2]` **antes** do token voltar — `T[2]` parecia ocioso, mas não estava mais.
+
+**A solução:** em vez de percorrer só as arestas do anel, o token percorre um **ciclo `C` que passa por toda aresta do grafo completo** (cada aresta pelo menos uma vez). Assim ele garante "flush" de mensagens em qualquer rota possível.
+
+**Generalização das cores + um contador:**
+- O token carrega um valor que conta quantos canais consecutivos (na ordem do ciclo `C`) estavam vazios.
+- Um processo fica **vermelho** ao receber mensagem normal; fica **azul** de novo só ao receber o token de novo estando ocioso.
+
+**Quando termina:** quando o contador do token atinge `nc` (tamanho do ciclo `C`), significa que o token já deu **duas voltas completas** sem nenhuma atividade — uma volta para tornar todos azuis, outra para confirmar.
+
+**Invariante (GRAPH):**
+
+> token tem valor `V` ⇒ os últimos `V` canais do ciclo estavam vazios **e** os últimos `V` processos a receber o token estavam azuis.
+
+## 9.6.1 — Exclusão Mútua Distribuída (Anel de Tokens)
+
 ## Sumário
 
 1. [O problema](#1-o-problema)

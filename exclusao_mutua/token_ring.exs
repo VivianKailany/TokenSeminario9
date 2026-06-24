@@ -31,7 +31,6 @@ defmodule TokenRing.Helper do
 
   @doc """
   Trata as mensagens de controle recebidas pelo Helper.
-  Unificar a documentação aqui evita avisos de 'redefining @doc'.
   """
   def handle_info(msg, state)
 
