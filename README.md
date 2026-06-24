@@ -1,6 +1,6 @@
 # Token Ring — Exclusão Mútua Distribuída em Elixir
 
-**Relatório técnico do estudo de caso sobre Token-Passing Algorithms**
+**Relatório técnico do estudo de caso sobre Algoritmos de passagem de token**
 
 Implementação em Elixir do algoritmo de **anel de bastão (token ring)** para exclusão mútua distribuída, apresentado na seção **9.6.1  "Distributed Mutual Exclusion"** de Misra & Andrews, *Foundations of Multithreaded, Parallel, and Distributed Programming* (Figuras 9.14 e 9.15 do livro).
 
