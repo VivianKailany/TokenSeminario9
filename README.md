@@ -1,3 +1,4 @@
+# Algoritmos de passagem de token
 # Token Ring — Exclusão Mútua Distribuída em Elixir
 
 **Relatório técnico do estudo de caso sobre Algoritmos de passagem de token**
@@ -49,7 +50,7 @@ A seção 9.6 mostra **um exemplo de cada uso**:
 
 **Por que é mais difícil:** mensagens podem "ultrapassar" o token por um caminho diferente. Exemplo do livro com 3 processos: o token vai `T[1]→T[2]→T[3]→T[1]`, mas `T[3]` pode mandar uma mensagem comum direto para `T[2]` **antes** do token voltar — `T[2]` parecia ocioso, mas não estava mais.
 
-**A solução:** em vez de percorrer só as arestas do anel, o token percorre um **ciclo `C` que passa por toda aresta do grafo completo** (cada aresta pelo menos uma vez). Assim ele garante "flush" de mensagens em qualquer rota possível.
+**A solução:** em vez de percorrer só as arestas do anel, o token percorre um **ciclo `C` que passa por toda aresta do grafo completo** (cada aresta pelo menos uma vez).
 
 **Generalização das cores + um contador:**
 - O token carrega um valor que conta quantos canais consecutivos (na ordem do ciclo `C`) estavam vazios.
